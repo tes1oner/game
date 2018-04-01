@@ -9,10 +9,9 @@ Presenter.Preloader.prototype = {
 		this.load.image('hole', 'img/hole.png');
 		this.load.image('element-w', 'img/element-w.png');
 		this.load.image('element-h', 'img/element-h.png');
-		this.load.image('panel', 'img/panel.png');
+		this.load.image('panel', 'img/panel-2.png');
 		this.load.image('title', 'img/logo.png');
 		this.load.image('button-pause', 'img/button-pause.png');
-		this.load.image('screen-bg', 'img/screen-bg.png');
 		this.load.image('screen-mainmenu', 'img/bg-menu.png');
 		this.load.image('screen-howtoplay', 'img/screen-howtoplay.png');
 		this.load.image('border-horizontal', 'img/border-horizontal.png');
@@ -24,6 +23,10 @@ Presenter.Preloader.prototype = {
 		this.load.spritesheet("neimi-archer-bow","img/neimi_archer_bow.png",30,40,13,4,0);
 		
 		this.load.audio('audio-bounce', ['audio/bounce.ogg', 'audio/bounce.mp3', 'audio/bounce.m4a']);
+
+
+		// Game resources
+		this.load.image('game-background', 'img/background.png');
 	},
 	create: function() {
 		this.game.state.start('MainMenu');

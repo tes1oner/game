@@ -1,6 +1,6 @@
 var Presenter = {
-	_WIDTH: 320,
-	_HEIGHT: 480
+	_WIDTH: 480,
+	_HEIGHT: 320
 };
 Presenter.Boot = function(game) {};
 Presenter.Boot.prototype = {

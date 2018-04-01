@@ -5,18 +5,18 @@ Presenter.Game.prototype = {
 		this.physics.startSystem(Phaser.Physics.ARCADE);
 
 		// Agregar fondo y panel
-		this.add.sprite(0, 0, 'screen-bg');
-		this.add.sprite(0, 0, 'panel');
+		this.add.sprite(0, 0, 'game-background');
+		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
 
 		// Configurar fuente
-		this.fontSmall = { font: "16px Arial", fill: "#e4beef" };
-		this.fontBig = { font: "24px Arial", fill: "#e4beef" };
+		this.fontSmall = { font: "11px Arial", fill: "#ffffff" };
+		this.fontBig = { font: "24px Arial", fill: "#ffffff" };
 		this.fontMessage = { font: "24px Arial", fill: "#e4beef",  align: "center", stroke: "#320C3E", strokeThickness: 4 };
-		
+		this.fontScore = { font: "15px Arial", fill: "#ffffff" };
 		// Estàdo del audio
 		this.audioStatus = true;
 		// Temporizador
-		this.timer = 0;
+		this.score = 0;
 		this.totalTimer = 0;
 		// control de niveles
 		this.level = 1;
@@ -39,9 +39,10 @@ Presenter.Game.prototype = {
 		this.audioButton.animations.play(this.audioStatus);
 
 		// Texto del panel
-		this.timerText = this.game.add.text(15, 15, "Time: "+this.timer, this.fontBig);
-		this.levelText = this.game.add.text(120, 10, "Level: "+this.level+" / "+this.maxLevels, this.fontSmall);
-		this.totalTimeText = this.game.add.text(120, 30, "Total time: "+this.totalTimer, this.fontSmall);
+		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
+		//this.timerText = this.game.add.text(15, 15, "Time: "+this.timer, this.fontBig);
+		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
+		//this.totalTimeText = this.game.add.text(120, 30, "Total time: "+this.totalTimer, this.fontSmall);
 
 		this.archer = this.add.sprite(100,50,"neimi-archer-bow");
 		this.archer.frame = 1;
@@ -75,15 +76,14 @@ Presenter.Game.prototype = {
 		this.borderGroup.setAll('body.immovable', true);
 		this.bounceSound = this.game.add.audio('audio-bounce');
 	},
-	initLevels: function() {
+	initLevels: function(){
 		
 	},
-	showLevel: function(level) {
+	showLevel: function(level){
 	},
-	updateCounter: function() {
-		this.timer++;
-		this.timerText.setText("Time: "+this.timer);
-		this.totalTimeText.setText("Total time: "+(this.totalTimer+this.timer));
+	updateCounter: function(){
+		this.score+= (this.level);
+		this.scoreText.setText("Score: "+this.score);
 	},
 	managePause: function() {
 		this.game.paused = true;
