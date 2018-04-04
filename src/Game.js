@@ -4,10 +4,6 @@ Presenter.Game.prototype = {
 		// Iniciar sistema de fìsica
 		this.physics.startSystem(Phaser.Physics.ARCADE);
 
-		// Agregar fondo y panel
-		this.add.sprite(0, 0, 'game-background');
-		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
-
 		// Configurar fuente
 		this.fontSmall = { font: "11px Arial", fill: "#ffffff" };
 		this.fontBig = { font: "24px Arial", fill: "#ffffff" };
@@ -21,22 +17,49 @@ Presenter.Game.prototype = {
 		// control de niveles
 		this.level = 1;
 		this.maxLevels = 1;
+		this.hPositions = {x: 64, y: 64, yy: 134, yyy: 204};
 
-		// ??
-		this.movementForce = 10;
-		this.ballStartPos = { x: Presenter._WIDTH*0.5, y: 450 };
-		// ??
+
+		// Agregar fondo y panel
+		this.add.sprite(0, 0, 'game-background');
+		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
+
 
 		// Controladores de botones
-		this.pauseButton = this.add.button(Presenter._WIDTH-8, 8, 'button-pause', this.managePause, this);
+		this.pauseButton = this.add.button(Presenter._WIDTH-20, 12, 'button-pause', this.managePause, this);
 		this.pauseButton.anchor.set(1,0);
+		this.pauseButton.scale.setTo(0.4, 0.4);
 		this.pauseButton.input.useHandCursor = true;
+
+/*
 		this.audioButton = this.add.button(Presenter._WIDTH-this.pauseButton.width-8*2, 8, 'button-audio', this.manageAudio, this);
 		this.audioButton.anchor.set(1,0);
 		this.audioButton.input.useHandCursor = true;
 		this.audioButton.animations.add('true', [0], 10, true);
 		this.audioButton.animations.add('false', [1], 10, true);
 		this.audioButton.animations.play(this.audioStatus);
+*/		
+
+		this.btnStick = this.add.button(100,10, 'btn-stick', this.manageResource, this);
+		this.btnStick.scale.setTo(1, 0.5);
+		//this.btnStick.anch
+		this.btnStick.input.useHandCursor = true;
+
+		this.btnIron = this.add.button(200,10, 'btn-iron', this.manageResource, this);
+		this.btnIron.scale.setTo(1, 0.5);
+		this.btnIron.input.useHandCursor = true;
+
+		this.btnRope = this.add.button(300,10, 'btn-rope', this.manageResource, this);
+		this.btnRope.scale.setTo(1, 0.5);
+		this.btnRope.input.useHandCursor = true;
+
+
+
+		// ??
+		this.movementForce = 10;
+		this.ballStartPos = { x: Presenter._WIDTH*0.5, y: 450 };
+		// ??
+
 
 		// Texto del panel
 		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
@@ -44,18 +67,34 @@ Presenter.Game.prototype = {
 		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
 		//this.totalTimeText = this.game.add.text(120, 30, "Total time: "+this.totalTimer, this.fontSmall);
 
-		this.archer = this.add.sprite(100,50,"neimi-archer-bow");
-		this.archer.frame = 1;
-		this.archer.animations.add('state', [0,1,2,3,4,5,6,7,8,9,10,11,12], 10, true)
-		//mujer.animations.add("left", [24, 25, 26, 27, 28, 29, 30, 31], 10, true);
-        //mujer.animations.add("right", [16, 17, 18, 19, 20, 21, 22, 23], 10, true);
-        //mujer.animations.add("up", [0, 1, 2, 3, 4], 10, true);
-        //mujer.animations.add("down", [8, 9, 10, 11, 12], 10, true);
-        this.archer.animations.play('state');
+		//this.archer = this.add.sprite(100,50,"neimi-archer-bow");
+		//this.archer.frame = 1;
+		//this.archer.animations.add('state', [0,1,2,3,4,5,6,7,8,9,10,11,12], 10, true)
+        //this.archer.animations.play('state');
 		//this.physics.enable(this.archer, Phaser.Physics.ARCADE);
 		//this.archer.anchor.set(0.5);
 		//this.archer.body.setSize(2, 2);
+		this.h1 = this.add.sprite(64,this.hPositions.y, "h1");
+		this.h1.frame = 1;
+		this.h1.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
+		this.h1.animations.play('state');
 
+		this.h2 = this.add.sprite(64, this.hPositions.yy, "h2");
+		this.h2.frame = 1;
+		this.h2.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
+		this.h2.animations.play('state');
+
+		this.h3 = this.add.sprite(64, this.hPositions.yyy, "h3");
+		this.h3.frame = 1;
+		this.h3.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
+		this.h3.animations.play('state');
+
+
+		this.enemy = this.add.sprite(400, this.hPositions.y, 'enemy');
+		this.enemy.scale.setTo(-1, 1);
+		this.enemy.frame = 1;
+		this.enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
+		this.enemy.animations.play('walking');
 
 		this.initLevels();
 		this.showLevel(1);
@@ -98,7 +137,8 @@ Presenter.Game.prototype = {
 		this.audioStatus =! this.audioStatus;
 		this.audioButton.animations.play(this.audioStatus);
 	},
-	update: function() {
+	update: function(){
+		this.enemy.x--;
 	},
 	wallCollision: function() {
 		if(this.audioStatus) {
