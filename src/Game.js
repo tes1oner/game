@@ -1,6 +1,6 @@
 Presenter.Game = function(game) {};
 Presenter.Game.prototype = {
-	create: function() {
+	loadDefaultValues: function(){
 		// Iniciar sistema de fìsica
 		this.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -17,15 +17,11 @@ Presenter.Game.prototype = {
 		// control de niveles
 		this.level = 1;
 		this.maxLevels = 1;
-		this.hPositions = {x: 64, y: 64, yy: 134, yyy: 204};
-
-
-		// Agregar fondo y panel
-		this.add.sprite(0, 0, 'game-background');
-		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
-
-
-		// Controladores de botones
+		this.linePositions = {hx: 64, y: 64};
+		this.selectedRes = null;
+	},
+	loadButtons: function(){
+				// Controladores de botones
 		this.pauseButton = this.add.button(Presenter._WIDTH-20, 12, 'button-pause', this.managePause, this);
 		this.pauseButton.anchor.set(1,0);
 		this.pauseButton.scale.setTo(0.4, 0.4);
@@ -38,66 +34,83 @@ Presenter.Game.prototype = {
 		this.audioButton.animations.add('true', [0], 10, true);
 		this.audioButton.animations.add('false', [1], 10, true);
 		this.audioButton.animations.play(this.audioStatus);
-*/		
-
-		this.btnStick = this.add.button(100,10, 'btn-stick', this.manageResource, this);
+*/	
+		this.btnStick = this.add.button(100,10, 'btn-stick', this.selectRes, this);
 		this.btnStick.scale.setTo(1, 0.5);
 		//this.btnStick.anch
 		this.btnStick.input.useHandCursor = true;
 
-		this.btnIron = this.add.button(200,10, 'btn-iron', this.manageResource, this);
+		this.btnIron = this.add.button(200,10, 'btn-iron', this.selectRes, this);
 		this.btnIron.scale.setTo(1, 0.5);
 		this.btnIron.input.useHandCursor = true;
+		this.btnIron.selected = false;
 
-		this.btnRope = this.add.button(300,10, 'btn-rope', this.manageResource, this);
+		this.btnRope = this.add.button(300,10, 'btn-rope', this.selectRes, this);
 		this.btnRope.scale.setTo(1, 0.5);
 		this.btnRope.input.useHandCursor = true;
+	},
+	initHeros: function(){
+		this.heroes = [];
+		for(var i = 0; i < 3; i++){
+			var y = this.linePositions.y+(70*i);
+			var animationSpeed = Math.floor(Math.random() * 10) + 3;
+			var hero = this.add.sprite(this.linePositions.hx, y, "h"+(i+1));
+			hero.frame = 1;
+			hero.animations.add('state', [0,1,2,3,4], animationSpeed, true);
+			hero.animations.add('shot', [5,6,7,8,9], 8, true);
+			hero.animations.play('shot');
+			this.physics.enable(hero, Phaser.Physics.ARCADE);
+			hero.anchor.set(0);
+			hero.body.setSize(1, 1);
+			hero.inputEnabled = true;
+			hero.events.onInputDown.add(function(){
+				// el sprite ha sido pulsado on el ratón o tocado en una pantalla táctil
+			});
+			this.heroes[i] = hero;
+		}
+	},
+	loadEnemies: function(){},
+	loadRes: function(){},
+	showText: function(){
+		// Texto del panel
+		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
+		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
+	},
+	create: function() {
+		this.loadDefaultValues();
+
+		// Agregar fondo y panel
+		this.add.sprite(0, 0, 'game-background');
+		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
 
 
+		this.loadButtons();	
 
 		// ??
 		this.movementForce = 10;
 		this.ballStartPos = { x: Presenter._WIDTH*0.5, y: 450 };
 		// ??
 
-
-		// Texto del panel
-		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
-		//this.timerText = this.game.add.text(15, 15, "Time: "+this.timer, this.fontBig);
-		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
-		//this.totalTimeText = this.game.add.text(120, 30, "Total time: "+this.totalTimer, this.fontSmall);
-
-		//this.archer = this.add.sprite(100,50,"neimi-archer-bow");
-		//this.archer.frame = 1;
-		//this.archer.animations.add('state', [0,1,2,3,4,5,6,7,8,9,10,11,12], 10, true)
-        //this.archer.animations.play('state');
-		//this.physics.enable(this.archer, Phaser.Physics.ARCADE);
-		//this.archer.anchor.set(0.5);
-		//this.archer.body.setSize(2, 2);
-		this.h1 = this.add.sprite(64,this.hPositions.y, "h1");
-		this.h1.frame = 1;
-		this.h1.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
-		this.h1.animations.play('state');
-
-		this.h2 = this.add.sprite(64, this.hPositions.yy, "h2");
-		this.h2.frame = 1;
-		this.h2.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
-		this.h2.animations.play('state');
-
-		this.h3 = this.add.sprite(64, this.hPositions.yyy, "h3");
-		this.h3.frame = 1;
-		this.h3.animations.add('state', [0,1,2,3,4], Math.floor(Math.random() * 10) + 3, true);
-		this.h3.animations.play('state');
+		this.showText();
 
 
-		this.enemy = this.add.sprite(400, this.hPositions.y, 'enemy');
-		this.enemy.scale.setTo(-1, 1);
-		this.enemy.frame = 1;
-		this.enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
-		this.enemy.animations.play('walking');
-
-		this.initLevels();
-		this.showLevel(1);
+		this.initHeros();
+		this.enemies = [];
+		for(var i = 0; i < 3; i++){
+			var y = this.linePositions.y+(70*i);
+			var enemy = this.add.sprite(Presenter._WIDTH+100, y, 'enemy');
+			enemy.data = {};
+			var speed = this.rnd.realInRange(0.1, .6) * this.level;
+			enemy.scale.setTo(-1, 1);
+			enemy.frame = 1;
+			enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
+			enemy.animations.play('walking');
+			enemy.data.speed = speed;
+			enemy.speed = speed;
+			this.enemies[i] = enemy;
+		}
+		//this.enemies.append()
+		
 		this.keys = this.game.input.keyboard.createCursorKeys();
 
 		//Presenter._player = this.ball;
@@ -115,30 +128,57 @@ Presenter.Game.prototype = {
 		this.borderGroup.setAll('body.immovable', true);
 		this.bounceSound = this.game.add.audio('audio-bounce');
 	},
-	initLevels: function(){
-		
+	selectRes: function(e){
+		if(e == this.btnIron){
+			this.selectedRes = 'iron';
+		}else if(e == this.btnRope){
+			this.selectedRes = 'rope';
+		}else if(e == this.btnStick){
+			this.selectedRes = 'stick';
+		}
+		this.updateResPanel();
 	},
-	showLevel: function(level){
+	updateResPanel: function(){
+		for (var i = this.heroes.length - 1; i >= 0; i--) {
+			this.heroes[i].input.useHandCursor = true;
+		}
+		if(this.selectedRes == 'iron'){
+			this.btnIron.tint = 0x53E129;
+			this.btnRope.tint = 0xFFFFFF;
+			this.btnStick.tint = 0xFFFFFF;
+		}else if(this.selectedRes == 'rope'){
+			this.btnRope.tint = 0x53E129;
+			this.btnIron.tint = 0xFFFFFF;
+			this.btnStick.tint = 0xFFFFFF;
+		}else if(this.selectedRes == 'stick'){
+			this.btnStick.tint = 0x53E129;
+			this.btnRope.tint = 0xFFFFFF;
+			this.btnIron.tint = 0xFFFFFF;
+		}else{
+			this.btnStick.tint = 0xFFFFFF;
+			this.btnRope.tint = 0xFFFFFF;
+			this.btnIron.tint = 0xFFFFFF;
+			for(var i = this.heroes.length - 1; i >= 0; i--){
+				this.heroes[i].input.useHandCursor = false;
+			}
+		}
 	},
 	updateCounter: function(){
 		this.score+= (this.level);
 		this.scoreText.setText("Score: "+this.score);
-	},
-	managePause: function() {
-		this.game.paused = true;
-		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Game paused,\ntap anywhere to continue.", this.fontMessage);
-		pausedText.anchor.set(0.5);
-		this.input.onDown.add(function(){
-			pausedText.destroy();
-			this.game.paused = false;
-		}, this);
-	},
-	manageAudio: function() {
-		this.audioStatus =! this.audioStatus;
-		this.audioButton.animations.play(this.audioStatus);
+	},	
+	updateEnemies: function(){
+		for (var i = 0; i < this.enemies.length; i++) {
+			this.enemies[i].x-=this.enemies[i].data.speed * this.level;
+		}
 	},
 	update: function(){
-		this.enemy.x--;
+		this.updateEnemies();
+		//this.enemy.x--;
+	},
+	render: function(){
+		// this.game.debug.body(this.arher);
+		// this.game.debug.body(this.hole);
 	},
 	wallCollision: function() {
 		if(this.audioStatus) {
@@ -149,27 +189,25 @@ Presenter.Game.prototype = {
 			window.navigator.vibrate(100);
 		}
 	},
-	handleOrientation: function(e) {
+	managePause: function() {
+		this.game.paused = true;
+		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Game paused,\ntap anywhere to continue.", this.fontMessage);
+		pausedText.anchor.set(0.5);
+		this.input.onDown.add(function(){
+			pausedText.destroy();
+			this.game.paused = false;
+		}, this);
+	},
+	handleOrientation: function(e){
 		try{
-			if (!mygame.device.desktop){
+			if(!mygame.device.desktop){
 				screen.orientation.lock('landscape');		
 			}
 			
 		}catch(err){}
-		
-		/*
-		// Device Orientation API
-		var x = e.gamma; // range [-90,90], left-right
-		var y = e.beta;  // range [-180,180], top-bottom
-		var z = e.alpha; // range [0,360], up-down
-		Presenter._player.body.velocity.x += x;
-		Presenter._player.body.velocity.y += y*0.5;*/
 	},
-	finishLevel: function() {
-		
-	},
-	render: function() {
-		// this.game.debug.body(this.arher);
-		// this.game.debug.body(this.hole);
+	manageAudio: function() {
+		this.audioStatus =! this.audioStatus;
+		this.audioButton.animations.play(this.audioStatus);
 	}
 };

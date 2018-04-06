@@ -5,10 +5,6 @@ Presenter.Preloader.prototype = {
 		this.preloadBar = this.add.sprite((Presenter._WIDTH-158)*0.5, (Presenter._HEIGHT-50)*0.5, 'preloaderBar');
 		this.load.setPreloadSprite(this.preloadBar);
 
-		this.load.image('ball', 'img/ball.png');
-		this.load.image('hole', 'img/hole.png');
-		this.load.image('element-w', 'img/element-w.png');
-		this.load.image('element-h', 'img/element-h.png');
 		this.load.image('panel', 'img/panel-2.png');
 		this.load.image('title', 'img/logo.png');
 		this.load.image('button-pause', 'img/btn-pause.png');
@@ -22,7 +18,6 @@ Presenter.Preloader.prototype = {
 
 		this.load.audio('audio-bounce', ['audio/bounce.ogg', 'audio/bounce.mp3', 'audio/bounce.m4a']);
 
-//		this.load.spritesheet("neimi-archer-bow","img/neimi_archer_bow.png",30,40,13,4,0);
 
 		this.load.spritesheet("h1","img/h1.png",36,64,10,0,0);
 		this.load.spritesheet("h2","img/h2.png",36,64,10,0,0);
@@ -31,8 +26,11 @@ Presenter.Preloader.prototype = {
 		this.load.spritesheet('enemy', 'img/enemy.png',36,64,6,0,0);
 
 		this.load.image('btn-iron', 'img/btn-iron.png');
-		this.load.image('btn-stick', 'img/btn-stick.png');		
+		this.load.image('icon-iron', 'img/icon-iron.png');
+		this.load.image('btn-stick', 'img/btn-stick.png');
+		this.load.image('icon-stick', 'img/icon-stick.png');		
 		this.load.image('btn-rope', 'img/btn-rope.png');
+		this.load.image('icon-rope', 'img/icon-rope.png');
 
 
 		// Game resources
