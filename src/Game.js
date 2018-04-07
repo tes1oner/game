@@ -49,7 +49,25 @@ Presenter.Game.prototype = {
 		this.btnRope.scale.setTo(1, 0.5);
 		this.btnRope.input.useHandCursor = true;
 	},
-	initHeros: function(){
+	initRes: function(){
+		this.availableRes = ['iron', 'stick', 'rope'];
+	},
+	getResIndicators: function(x, y){
+		var resIndicators = [];
+		var indicator;
+		for (var i = this.availableRes.length - 1; i >= 0; i--) {
+			var indicator;
+			x = x-20;
+			indicator = this.add.sprite(x-(i*3),y,'icon-'+this.availableRes[i]);
+			indicator.key = this.availableRes[i];
+			indicator.scale.setTo(0.5,0.5);
+			indicator.visible = false;
+			resIndicators[i] = indicator;
+		}
+		return resIndicators;
+
+	},
+	initHeroes: function(){
 		this.heroes = [];
 		for(var i = 0; i < 3; i++){
 			var y = this.linePositions.y+(70*i);
@@ -58,19 +76,40 @@ Presenter.Game.prototype = {
 			hero.frame = 1;
 			hero.animations.add('state', [0,1,2,3,4], animationSpeed, true);
 			hero.animations.add('shot', [5,6,7,8,9], 8, true);
-			hero.animations.play('shot');
+			hero.animations.play('state');
 			this.physics.enable(hero, Phaser.Physics.ARCADE);
 			hero.anchor.set(0);
 			hero.body.setSize(1, 1);
 			hero.inputEnabled = true;
-			hero.events.onInputDown.add(function(){
-				// el sprite ha sido pulsado on el ratón o tocado en una pantalla táctil
-			});
+			hero.res = {'iron': false, 'stick': false, 'rope': false};
+			hero.res[this.availableRes[i]] = true;
+			hero.indicators = this.getResIndicators(hero.x, hero.y);
+			this.updateHero(hero);
 			this.heroes[i] = hero;
+			this.heroes[i].events.onInputDown.add(function(sprite){
+				console.log(sprite.res);
+			});
+			this.updateHero(i);
 		}
 	},
-	loadEnemies: function(){},
-	loadRes: function(){},
+	initEnemies: function(){
+		this.enemies = [];
+		for(var i = 0; i < 3; i++){
+			var y = this.linePositions.y+(70*i);
+			var enemy = this.add.sprite(Presenter._WIDTH+100, y, 'enemy');
+			enemy.data = {};
+			var speed = this.rnd.realInRange(0.1, .6) * this.level;
+			enemy.scale.setTo(-1, 1);
+			enemy.frame = 1;
+			enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
+			enemy.animations.play('walking');
+			enemy.data.speed = speed;
+			enemy.speed = speed;
+			this.enemies[i] = enemy;
+		}
+		//this.enemies.append()
+	},
+	
 	showText: function(){
 		// Texto del panel
 		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
@@ -93,23 +132,9 @@ Presenter.Game.prototype = {
 
 		this.showText();
 
-
-		this.initHeros();
-		this.enemies = [];
-		for(var i = 0; i < 3; i++){
-			var y = this.linePositions.y+(70*i);
-			var enemy = this.add.sprite(Presenter._WIDTH+100, y, 'enemy');
-			enemy.data = {};
-			var speed = this.rnd.realInRange(0.1, .6) * this.level;
-			enemy.scale.setTo(-1, 1);
-			enemy.frame = 1;
-			enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
-			enemy.animations.play('walking');
-			enemy.data.speed = speed;
-			enemy.speed = speed;
-			this.enemies[i] = enemy;
-		}
-		//this.enemies.append()
+		this.initRes();
+		this.initHeroes();
+		this.initEnemies();
 		
 		this.keys = this.game.input.keyboard.createCursorKeys();
 
@@ -127,6 +152,7 @@ Presenter.Game.prototype = {
 		this.borderGroup.create(Presenter._WIDTH-2, 0, 'border-vertical');
 		this.borderGroup.setAll('body.immovable', true);
 		this.bounceSound = this.game.add.audio('audio-bounce');
+		//this.updateHeroes();
 	},
 	selectRes: function(e){
 		if(e == this.btnIron){
@@ -172,7 +198,36 @@ Presenter.Game.prototype = {
 			this.enemies[i].x-=this.enemies[i].data.speed * this.level;
 		}
 	},
+	updateHero: function(hero){
+		//var hero = this.heroes[index];
+		console.log('hero '+hero);
+		var i = 0;
+		for (var key in hero.res){
+			console.log(key+': '+hero.res[key]);
+			if(hero.res[key]){
+				hero.indicators[i].visible = true;
+			}else{
+				hero.indicators[i].visible = false;
+			}
+			
+		}
+	},
+	updateHeroes: function(){
+		for (var i = this.heroes.length - 1; i >= 0; i--){
+			console.log('hero '+i)
+			for (var key in this.heroes[i].res){
+				console.log(key+': '+this.heroes[i].res[key]);
+				if(this.heroes[i].res[key]){
+					this.heroes[i].indicators[i].visible = true;
+				}else{
+					this.heroes[i].indicators[i].visible = false;
+				}
+				
+			}
+		}
+	},
 	update: function(){
+		//this.updateHeroes();
 		this.updateEnemies();
 		//this.enemy.x--;
 	},
