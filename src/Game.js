@@ -19,6 +19,17 @@ Presenter.Game.prototype = {
 		this.maxLevels = 1;
 		this.linePositions = {hx: 64, y: 64};
 		this.selectedRes = null;
+		this.resources = {
+			'iron': {
+				'time': 0
+			},
+			'stick': {
+				'time': 0
+			},
+			'rope': {
+				'time': 0
+			}
+		};
 	},
 	loadButtons: function(){
 				// Controladores de botones
@@ -36,24 +47,32 @@ Presenter.Game.prototype = {
 		this.audioButton.animations.play(this.audioStatus);
 */	
 		this.btnStick = this.add.button(100,10, 'btn-stick', this.selectRes, this);
+		this.btnStick.time = 0;
 		this.btnStick.scale.setTo(1, 0.5);
 		//this.btnStick.anch
 		this.btnStick.input.useHandCursor = true;
 
 		this.btnIron = this.add.button(200,10, 'btn-iron', this.selectRes, this);
 		this.btnIron.scale.setTo(1, 0.5);
+		this.btnIron.time = 0;
 		this.btnIron.input.useHandCursor = true;
 		this.btnIron.selected = false;
 
 		this.btnRope = this.add.button(300,10, 'btn-rope', this.selectRes, this);
+		this.btnRope.time = 0;
 		this.btnRope.scale.setTo(1, 0.5);
 		this.btnRope.input.useHandCursor = true;
+	},
+	showText: function(){
+		// Texto del panel
+		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
+		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
 	},
 	initRes: function(){
 		this.availableRes = ['iron', 'stick', 'rope'];
 	},
 	getResIndicators: function(x, y){
-		var resIndicators = [];
+		var resIndicators = {};
 		var indicator;
 		for (var i = this.availableRes.length - 1; i >= 0; i--) {
 			var indicator;
@@ -62,11 +81,12 @@ Presenter.Game.prototype = {
 			indicator.key = this.availableRes[i];
 			indicator.scale.setTo(0.5,0.5);
 			indicator.visible = false;
-			resIndicators[i] = indicator;
+			resIndicators[this.availableRes[i]] = indicator;
 		}
 		return resIndicators;
 
 	},
+
 	initHeroes: function(){
 		this.heroes = [];
 		for(var i = 0; i < 3; i++){
@@ -84,12 +104,12 @@ Presenter.Game.prototype = {
 			hero.res = {'iron': false, 'stick': false, 'rope': false};
 			hero.res[this.availableRes[i]] = true;
 			hero.indicators = this.getResIndicators(hero.x, hero.y);
-			this.updateHero(hero);
+			//this.updateHero(hero);
 			this.heroes[i] = hero;
-			this.heroes[i].events.onInputDown.add(function(sprite){
-				console.log(sprite.res);
+			this.heroes[i].events.onInputDown.add((hero) => {
+				this.takeRes(hero, this.selectedRes);
 			});
-			this.updateHero(i);
+			//this.updateHero(i);
 		}
 	},
 	initEnemies: function(){
@@ -109,12 +129,39 @@ Presenter.Game.prototype = {
 		}
 		//this.enemies.append()
 	},
-	
-	showText: function(){
-		// Texto del panel
-		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
-		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
+	takeRes: function(hero, res){
+		console.log(res)
+		if(this.selectedRes != null){
+			hero.res[res] = true;
+			this.updateHero(hero);
+			this.lockRes(res);
+		}
+		this.updateResPanel();
 	},
+	lockRes: function(res){
+		res = this.selectedRes;
+		this.resources[res]['time'] = 20;
+		console.log(res);
+		if(res == 'iron'){
+			this.btnStick.visible = false;
+		}else if(res == 'rope'){
+			this.btnRope.visible = false;
+		}else if(res == 'stick'){
+			this.btnStick.visible = false;
+		}
+	},
+	unlockRes: function(res){
+		this.resources[res]['time'] = 0;
+		this.selectedRes = null;
+		if(res == 'iron'){
+			this.btnStick.visible = true;
+		}else if(res == 'rope'){
+			this.btnRope.visible = true;
+		}else if(res == 'stick'){
+			this.btnStick.visible = true;
+		}
+	},
+	
 	create: function() {
 		this.loadDefaultValues();
 
@@ -142,7 +189,12 @@ Presenter.Game.prototype = {
 		window.addEventListener("deviceorientation", this.handleOrientation, true);
 
 		this.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
-
+		this.addBorders();
+		
+		this.bounceSound = this.game.add.audio('audio-bounce');
+		this.updateHeroes();
+	},
+	addBorders: function(){
 		this.borderGroup = this.add.group();
 		this.borderGroup.enableBody = true;
 		this.borderGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -151,8 +203,6 @@ Presenter.Game.prototype = {
 		this.borderGroup.create(0, 0, 'border-vertical');
 		this.borderGroup.create(Presenter._WIDTH-2, 0, 'border-vertical');
 		this.borderGroup.setAll('body.immovable', true);
-		this.bounceSound = this.game.add.audio('audio-bounce');
-		//this.updateHeroes();
 	},
 	selectRes: function(e){
 		if(e == this.btnIron){
@@ -163,6 +213,7 @@ Presenter.Game.prototype = {
 			this.selectedRes = 'stick';
 		}
 		this.updateResPanel();
+		console.log('selected: '+this.selectedRes);
 	},
 	updateResPanel: function(){
 		for (var i = this.heroes.length - 1; i >= 0; i--) {
@@ -192,6 +243,13 @@ Presenter.Game.prototype = {
 	updateCounter: function(){
 		this.score+= (this.level);
 		this.scoreText.setText("Score: "+this.score);
+		for (key in this.resources){
+			if(this.resources[key]['time'] > 0){
+				this.resources[key]['time'] -=1;
+			}else{
+				this.unlockRes(key);
+			}
+		}
 	},	
 	updateEnemies: function(){
 		for (var i = 0; i < this.enemies.length; i++) {
@@ -199,28 +257,23 @@ Presenter.Game.prototype = {
 		}
 	},
 	updateHero: function(hero){
-		//var hero = this.heroes[index];
-		console.log('hero '+hero);
-		var i = 0;
 		for (var key in hero.res){
-			console.log(key+': '+hero.res[key]);
 			if(hero.res[key]){
-				hero.indicators[i].visible = true;
+				hero.indicators[key].visible = true;
 			}else{
-				hero.indicators[i].visible = false;
+				hero.indicators[key].visible = false;
 			}
 			
 		}
 	},
 	updateHeroes: function(){
 		for (var i = this.heroes.length - 1; i >= 0; i--){
-			console.log('hero '+i)
-			for (var key in this.heroes[i].res){
-				console.log(key+': '+this.heroes[i].res[key]);
-				if(this.heroes[i].res[key]){
-					this.heroes[i].indicators[i].visible = true;
+			var hero = this.heroes[i];
+			for (var key in hero.res){
+				if(hero.res[key]){
+					hero.indicators[key].visible = true;
 				}else{
-					this.heroes[i].indicators[i].visible = false;
+					hero.indicators[key].visible = false;
 				}
 				
 			}
