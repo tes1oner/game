@@ -54,23 +54,41 @@ Presenter.Game.prototype = {
 		this.audioButton.animations.add('false', [1], 10, true);
 		this.audioButton.animations.play(this.audioStatus);
 */	
-		this.btnStick = this.add.button(100,10, 'btn-stick', this.selectRes, this);
-		this.btnStick.time = 0;
+		this.btnStick = this.add.sprite(200,100, 'btn-stick');
+		this.btnStick.inputEnabled = true;
+		this.btnStick.available = true;
+		//this.btnStick = this.add.button(100,10, 'btn-stick', this.selectRes, this);
+		//this.btnStick.time = 0;
+		//this.btnStick.frame = 2;
+		//this.btnStick.animations.add('available', [0, 1], 1, false);
+		//this.btnStick.animations.add('locked', [1], 1, false);
+		//this.btnStick.animations.play('available');
 		this.btnStick.scale.setTo(1, 0.5);
 		//this.btnStick.anch
 		this.btnStick.input.useHandCursor = true;
-
+		this.btnStick.events.onInputDown.add((btn) => {
+			console.log(btn.animations);
+			if(btn.available){
+				btn.available = false;
+				btn.loadTexture('btn-stick-locked');
+			}else{
+				btn.loadTexture('btn-stick');
+				btn.available = true;
+			}
+		});
+		
 		this.btnIron = this.add.button(200,10, 'btn-iron', this.selectRes, this);
 		this.btnIron.scale.setTo(1, 0.5);
 		this.btnIron.time = 0;
 		this.btnIron.input.useHandCursor = true;
 		this.btnIron.selected = false;
-
+		/*
 		this.btnRope = this.add.button(300,10, 'btn-rope', this.selectRes, this);
 		this.btnRope.time = 0;
 		this.btnRope.scale.setTo(1, 0.5);
-		this.btnRope.input.useHandCursor = true;
+		this.btnRope.input.useHandCursor = true;*/
 	},
+	//  game.add.image(0, 0, 'undersea'); para los iconos 
 	showText: function(){
 		// Texto del panel
 		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
@@ -161,10 +179,10 @@ Presenter.Game.prototype = {
 		this.resources[res]['time'] = 0;
 		//this.selectedRes = null;
 		if(res == 'iron'){
-			this.btnStick.visible = true;
+			//this.btnStick.visible = true;
 			//this.btnIron.tint = 0xFFFFFF;
 		}else if(res == 'rope'){
-			this.btnRope.visible = true;
+			//this.btnRope.visible = true;
 			//this.btnRope.tint = 0xFFFFFF;
 		}else if(res == 'stick'){
 			this.btnStick.visible = true;
@@ -205,6 +223,7 @@ Presenter.Game.prototype = {
 	selectRes: function(e){
 		if(e == this.btnIron){
 			this.selectedResource = this.resources['iron'];
+			this.btnIron.loadTexture('btn-stick-locked');
 			//this.selectedRes = 'iron';
 		}else if(e == this.btnRope){
 			this.selectedResource = this.resources['rope'];

@@ -25,11 +25,16 @@ Presenter.Preloader.prototype = {
 
 		this.load.spritesheet('enemy', 'img/enemy.png',36,64,6,0,0);
 
-		this.load.image('btn-iron', 'img/btn-iron.png');
+		//this.load.image('btn-iron', 'img/btn-iron.png');
+		//this.load.spritesheet('btn-stick', 'img/btn-stick.png', 70,64,1,0,0);
+		this.load.spritesheet('btn-iron', 'img/btn-iron.png', 70,64,1,0,0);
+		this.load.spritesheet('btn-rope', 'img/btn-rope.png', 70,64,1,0,0);
+
 		this.load.image('icon-iron', 'img/icon-iron.png');
 		this.load.image('btn-stick', 'img/btn-stick.png');
+		this.load.image('btn-stick-locked', 'img/btn-stick-locked.png');
 		this.load.image('icon-stick', 'img/icon-stick.png');		
-		this.load.image('btn-rope', 'img/btn-rope.png');
+		//this.load.image('btn-rope', 'img/btn-rope.png');
 		this.load.image('icon-rope', 'img/icon-rope.png');
 
 
