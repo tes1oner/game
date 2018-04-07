@@ -18,18 +18,26 @@ Presenter.Game.prototype = {
 		this.level = 1;
 		this.maxLevels = 1;
 		this.linePositions = {hx: 64, y: 64};
-		this.selectedRes = null;
+		//this.selectedRes = null;
+		this.selectedResource = null;
 		this.resources = {
 			'iron': {
-				'time': 0
+				'time': 0,
+				'name': 'iron',
+				'button': this.btnIron
 			},
 			'stick': {
-				'time': 0
+				'time': 0,
+				'name': 'stick',
+				'button': this.btnStick
 			},
 			'rope': {
-				'time': 0
+				'time': 0,
+				'name': 'rope',
+				'button': this.btnRope
 			}
 		};
+		this.availableRes = ['iron', 'stick', 'rope'];
 	},
 	loadButtons: function(){
 				// Controladores de botones
@@ -68,9 +76,6 @@ Presenter.Game.prototype = {
 		this.scoreText = this.game.add.text(12, 8, "Score: "+this.score, this.fontScore);
 		this.levelText = this.game.add.text(22, 28, "Level: "+this.level, this.fontSmall);
 	},
-	initRes: function(){
-		this.availableRes = ['iron', 'stick', 'rope'];
-	},
 	getResIndicators: function(x, y){
 		var resIndicators = {};
 		var indicator;
@@ -107,9 +112,10 @@ Presenter.Game.prototype = {
 			//this.updateHero(hero);
 			this.heroes[i] = hero;
 			this.heroes[i].events.onInputDown.add((hero) => {
-				this.takeRes(hero, this.selectedRes);
+				if(this.selectedResource != null)
+					this.takeRes(hero, this.selectedResource);
 			});
-			//this.updateHero(i);
+			this.updateHeroes();
 		}
 	},
 	initEnemies: function(){
@@ -130,69 +136,61 @@ Presenter.Game.prototype = {
 		//this.enemies.append()
 	},
 	takeRes: function(hero, res){
-		console.log(res)
-		if(this.selectedRes != null){
-			hero.res[res] = true;
-			this.updateHero(hero);
+		res = this.selectedResource;
+		if(res != null){
+			hero.res[res['name']] = true;
 			this.lockRes(res);
+			this.updateHeroes();
 		}
 		this.updateResPanel();
 	},
 	lockRes: function(res){
-		res = this.selectedRes;
-		this.resources[res]['time'] = 20;
-		console.log(res);
-		if(res == 'iron'){
-			this.btnStick.visible = false;
-		}else if(res == 'rope'){
+		if(res['name'] == 'iron'){
+			this.btnIron.visible = false;
+			//this.btnIron.tint = 0xFF2200;
+		}else if(res['name'] == 'rope'){
 			this.btnRope.visible = false;
-		}else if(res == 'stick'){
+			//this.btnRope.tint = 0xFF2200;
+		}else if(res['name'] == 'stick'){
 			this.btnStick.visible = false;
+			//this.btnStick.tint = 0xFF2200;
 		}
+		res['time'] =  30;
 	},
 	unlockRes: function(res){
 		this.resources[res]['time'] = 0;
-		this.selectedRes = null;
+		//this.selectedRes = null;
 		if(res == 'iron'){
 			this.btnStick.visible = true;
+			//this.btnIron.tint = 0xFFFFFF;
 		}else if(res == 'rope'){
 			this.btnRope.visible = true;
+			//this.btnRope.tint = 0xFFFFFF;
 		}else if(res == 'stick'){
 			this.btnStick.visible = true;
+			//this.btnStick.tint = 0xFFFFFF;
 		}
 	},
 	
 	create: function() {
 		this.loadDefaultValues();
-
 		// Agregar fondo y panel
 		this.add.sprite(0, 0, 'game-background');
 		this.add.sprite(0, 0, 'panel').scale.setTo(0.994, 0.8);
-
-
+		// Cargar elementos
 		this.loadButtons();	
-
-		// ??
-		this.movementForce = 10;
-		this.ballStartPos = { x: Presenter._WIDTH*0.5, y: 450 };
-		// ??
-
 		this.showText();
-
-		this.initRes();
 		this.initHeroes();
 		this.initEnemies();
-		
+		// Activar entrada del teclado
 		this.keys = this.game.input.keyboard.createCursorKeys();
-
-		//Presenter._player = this.ball;
-		window.addEventListener("deviceorientation", this.handleOrientation, true);
+		//Activar event listener window.addEventListener("deviceorientation", this.handleOrientation, true);
 
 		this.time.events.loop(Phaser.Timer.SECOND, this.updateCounter, this);
 		this.addBorders();
 		
 		this.bounceSound = this.game.add.audio('audio-bounce');
-		this.updateHeroes();
+		//this.updateHeroes();
 	},
 	addBorders: function(){
 		this.borderGroup = this.add.group();
@@ -206,28 +204,30 @@ Presenter.Game.prototype = {
 	},
 	selectRes: function(e){
 		if(e == this.btnIron){
-			this.selectedRes = 'iron';
+			this.selectedResource = this.resources['iron'];
+			//this.selectedRes = 'iron';
 		}else if(e == this.btnRope){
-			this.selectedRes = 'rope';
+			this.selectedResource = this.resources['rope'];
+			//this.selectedRes = 'rope';
 		}else if(e == this.btnStick){
-			this.selectedRes = 'stick';
+			this.selectedResource = this.resources['stick'];
+			//this.selectedRes = 'stick';
 		}
 		this.updateResPanel();
-		console.log('selected: '+this.selectedRes);
 	},
 	updateResPanel: function(){
 		for (var i = this.heroes.length - 1; i >= 0; i--) {
 			this.heroes[i].input.useHandCursor = true;
 		}
-		if(this.selectedRes == 'iron'){
+		if(this.selectedResource['name'] == 'iron'){
 			this.btnIron.tint = 0x53E129;
 			this.btnRope.tint = 0xFFFFFF;
 			this.btnStick.tint = 0xFFFFFF;
-		}else if(this.selectedRes == 'rope'){
+		}else if(this.selectedResource['name'] == 'rope'){
 			this.btnRope.tint = 0x53E129;
 			this.btnIron.tint = 0xFFFFFF;
 			this.btnStick.tint = 0xFFFFFF;
-		}else if(this.selectedRes == 'stick'){
+		}else if(this.selectedResource['name'] == 'stick'){
 			this.btnStick.tint = 0x53E129;
 			this.btnRope.tint = 0xFFFFFF;
 			this.btnIron.tint = 0xFFFFFF;
@@ -263,7 +263,6 @@ Presenter.Game.prototype = {
 			}else{
 				hero.indicators[key].visible = false;
 			}
-			
 		}
 	},
 	updateHeroes: function(){
