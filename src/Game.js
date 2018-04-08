@@ -138,8 +138,8 @@ Presenter.Game.prototype = {
 
 			hero.hacha = this.add.sprite(hx,hy,'hacha');
 			this.physics.enable(hero.hacha, Phaser.Physics.ARCADE);
-			hero.hacha.anchor.set(0);
-			hero.hacha.body.setSize(1, 1);
+			hero.hacha.body.setSize(0.5, 0.5);
+			hero.hacha.anchor.set(0.5);
 			hero.hacha.fly = false;
 			//hero.hacha.scale.setTo(0.5,0.5);
 			hero.hacha.visible = false;
@@ -155,22 +155,23 @@ Presenter.Game.prototype = {
 			this.updateHeroes();
 		}
 	},
-	updateHachas: function(){
-		for (var i = this.heroes.length - 1; i >= 0; i--) {
-			var hacha = this.heroes[i].hacha;
-			if(hacha.fly){
-				hacha.rotation += 3;
-			}
-		}
-	},
+	
 
 	shot: function(hero){
+		var hacha = hero.hacha;
+		if(hacha.fly){
+			return;
+		}
+		var hx = hero.x+hero.width / 1.5;
+		var hy = hero.y+(hero.height/4);
+		hacha.x = hx;
+		hacha.y = hy;
 		var force = 140;
 		var angle = 0;
-		var hacha = hero.hacha;
+
 		hacha.visible = true;
 		hero.animations.play('state');
-		hacha.fly = false;
+		hacha.fly = true;
 		hacha.body.velocity.x = Math.cos(angle)*force;
 		//hacha.body.velocity.y += Math.sin(angle)*force;
 		//console.log(hero.hacha);
@@ -277,6 +278,19 @@ Presenter.Game.prototype = {
 			//this.selectedRes = 'stick';
 		}
 		this.updateResPanel();
+	},
+	updateHachas: function(){
+		for (var i = this.heroes.length - 1; i >= 0; i--) {
+			var hacha = this.heroes[i].hacha;
+			if(hacha.fly){
+				hacha.body.rotation += 2;
+				if(hacha.x > Presenter._WIDTH){
+					console.log('el hacha salio del rango');
+					hacha.fly = false;
+					hacha.visible = false;
+				}
+			}
+		}
 	},
 	updateResPanel: function(){
 		if(this.selectedResource == null){
