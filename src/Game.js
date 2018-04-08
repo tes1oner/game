@@ -155,23 +155,23 @@ Presenter.Game.prototype = {
 			hero.res[res['name']] = true;
 			res['given_to'] = hero;
 			console.log(this.resources);
-			this.lockRes(res);
+			if(res['name'] == 'iron'){
+				this.btnIron.available = false;
+				this.btnIron.loadTexture('btn-iron-locked');
+			}else if(res['name'] == 'rope'){
+				this.btnRope.available = false;
+				this.btnRope.loadTexture('btn-rope-locked');
+			}else if(res['name'] == 'stick'){
+				this.btnStick.available = false;
+				this.btnStick.loadTexture('btn-stick-locked');
+			}
+			res['time'] =  5;
 			this.updateHeroes();
 		}
 		this.updateResPanel();
 	},
 	lockRes: function(res){
-		if(res['name'] == 'iron'){
-			this.btnIron.available = false;
-			this.btnIron.loadTexture('btn-iron-locked');
-		}else if(res['name'] == 'rope'){
-			this.btnRope.available = false;
-			this.btnRope.loadTexture('btn-rope-locked');
-		}else if(res['name'] == 'stick'){
-			this.btnStick.available = false;
-			this.btnStick.loadTexture('btn-stick-locked');
-		}
-		res['time'] =  5;
+		
 	},
 	unlockRes: function(res){
 		this.resources[res]['time'] = 0;
