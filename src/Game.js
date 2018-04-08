@@ -140,6 +140,7 @@ Presenter.Game.prototype = {
 			this.physics.enable(hero.hacha, Phaser.Physics.ARCADE);
 			hero.hacha.anchor.set(0);
 			hero.hacha.body.setSize(1, 1);
+			hero.hacha.fly = false;
 			//hero.hacha.scale.setTo(0.5,0.5);
 			hero.hacha.visible = false;
 			this.heroes[i] = hero;
@@ -154,9 +155,24 @@ Presenter.Game.prototype = {
 			this.updateHeroes();
 		}
 	},
+	updateHachas: function(){
+		for (var i = this.heroes.length - 1; i >= 0; i--) {
+			var hacha = this.heroes[i].hacha;
+			if(hacha.fly){
+				hacha.rotation += 3;
+			}
+		}
+	},
+
 	shot: function(hero){
-		hero.hacha.visible = true;
+		var force = 140;
+		var angle = 0;
+		var hacha = hero.hacha;
+		hacha.visible = true;
 		hero.animations.play('state');
+		hacha.fly = false;
+		hacha.body.velocity.x = Math.cos(angle)*force;
+		//hacha.body.velocity.y += Math.sin(angle)*force;
 		//console.log(hero.hacha);
 		
 		//sleep(8/1000);
@@ -328,6 +344,7 @@ Presenter.Game.prototype = {
 		}
 	},
 	update: function(){
+		this.updateHachas();
 		//this.updateHeroes();
 		//this.updateEnemies();
 		//this.enemy.x--;
