@@ -43,6 +43,7 @@ Presenter.Game.prototype = {
 		};
 		this.availableRes = ['iron', 'stick', 'rope'];
 		this.resTime = 8;
+		this.chargeTime = 8;
 
 	},
 	loadResButtons: function(){
@@ -118,7 +119,9 @@ Presenter.Game.prototype = {
 			var hero = this.add.sprite(this.linePositions.hx, y, "h"+(i+1));
 			hero.frame = 1;
 			hero.animations.add('state', [0,1,2,3,4], animationSpeed, true);
-			hero.animations.add('shot', [5,6,7,8,9], 8, true);
+			hero.animations.add('shot', [5,6,7,8,9], 8, false).onComplete.add((hero) => {
+				this.shot(hero);
+			},this);
 			hero.animations.play('state');
 			this.physics.enable(hero, Phaser.Physics.ARCADE);
 			hero.anchor.set(0);
@@ -127,14 +130,37 @@ Presenter.Game.prototype = {
 			hero.res = {'iron': false, 'stick': false, 'rope': false};
 			hero.res[this.availableRes[i]] = true;
 			hero.indicators = this.getResIndicators(hero.x, hero.y);
+
+			hero.chargeTime = parseInt(this.rnd.realInRange(0.5, 1) * 10);
 			//this.updateHero(hero);
+			var hx = hero.x+hero.width / 1.5;
+			var hy = hero.y+(hero.height/4);
+
+			hero.hacha = this.add.sprite(hx,hy,'hacha');
+			this.physics.enable(hero.hacha, Phaser.Physics.ARCADE);
+			hero.hacha.anchor.set(0);
+			hero.hacha.body.setSize(1, 1);
+			//hero.hacha.scale.setTo(0.5,0.5);
+			hero.hacha.visible = false;
 			this.heroes[i] = hero;
 			this.heroes[i].events.onInputDown.add((hero) => {
-				if(this.selectedResource != null)
+				if(this.selectedResource != null){
 					this.takeRes(hero, this.selectedResource);
+				}else if(hero.res['iron'] && hero.res['rope'] && hero.res['stick']){
+					//this.shot(hero);
+					hero.animations.play('shot', 'state');
+				}
 			});
 			this.updateHeroes();
 		}
+	},
+	shot: function(hero){
+		hero.hacha.visible = true;
+		hero.animations.play('state');
+		//console.log(hero.hacha);
+		
+		//sleep(8/1000);
+		//hero.animations.play('state');
 	},
 	initEnemies: function(){
 		this.enemies = [];
@@ -309,6 +335,7 @@ Presenter.Game.prototype = {
 	render: function(){
 		// this.game.debug.body(this.arher);
 		// this.game.debug.body(this.hole);
+		//this.game.debug.body();
 	},
 	wallCollision: function() {
 		if(this.audioStatus) {
