@@ -42,6 +42,7 @@ Presenter.Game.prototype = {
 			}
 		};
 		this.availableRes = ['iron', 'stick', 'rope'];
+		this.resTime = 8;
 
 	},
 	loadResButtons: function(){
@@ -51,6 +52,7 @@ Presenter.Game.prototype = {
 		this.btnStick.input.useHandCursor = true;
 		this.btnStick.scale.setTo(1, 0.5);
 		this.btnStick.available = true;
+		this.btnStick.selected = false;
 		this.btnStick.resource = this.resources['stick'];
 		//this.btnStick.textCounter = this.game.add.text(x, y, this.btnStick.resource['time'], this.fontMini);
 		
@@ -58,6 +60,7 @@ Presenter.Game.prototype = {
 		this.btnIron = this.add.button(x,y, 'btn-iron', this.selectRes, this);
 		this.btnIron.input.useHandCursor = true;
 		this.btnIron.scale.setTo(1, 0.5);
+		this.btnIron.available = true;
 		this.btnIron.selected = false;
 		this.btnIron.resource = this.resources['iron'];
 		//this.btnIron.textCounter = this.game.add.text(x, y, this.btnIron.resource['time'], this.fontMini);
@@ -66,6 +69,7 @@ Presenter.Game.prototype = {
 		x = 300;
 		this.btnRope = this.add.button(x,y, 'btn-rope', this.selectRes, this);
 		this.btnRope.available = true;
+		this.btnRope.selected = false;
 		this.btnRope.input.useHandCursor = true;
 		this.btnRope.scale.setTo(1, 0.5);
 		this.btnRope.resource = this.resources['rope'];
@@ -154,19 +158,22 @@ Presenter.Game.prototype = {
 		if(res != null && !hero.res[res['name']] ){
 			hero.res[res['name']] = true;
 			res['given_to'] = hero;
-			console.log(this.resources);
 			if(res['name'] == 'iron'){
 				this.btnIron.available = false;
+				this.btnIron.selected = false;
 				this.btnIron.loadTexture('btn-iron-locked');
 			}else if(res['name'] == 'rope'){
 				this.btnRope.available = false;
+				this.btnRope.selected = false;
 				this.btnRope.loadTexture('btn-rope-locked');
 			}else if(res['name'] == 'stick'){
 				this.btnStick.available = false;
+				this.btnStick.selected = false;
 				this.btnStick.loadTexture('btn-stick-locked');
 			}
-			res['time'] =  5;
+			res['time'] =  this.resTime;
 			this.updateHeroes();
+			this.selectedResource = null;
 		}
 		this.updateResPanel();
 	},
@@ -176,18 +183,20 @@ Presenter.Game.prototype = {
 	unlockRes: function(res){
 		this.resources[res]['time'] = 0;
 		var hero = this.resources[res]['given_to'];
-		console.log(hero);
 		hero.res[res] = false;
 		this.updateHero(hero);
 		//this.selectedRes = null;
 		if(res == 'iron'){
-			this.btnIron.available = false;
+			this.btnIron.available = true;
+			this.btnIron.selected = true;
 			this.btnIron.loadTexture('btn-iron');
 		}else if(res == 'rope'){
-			this.btnRope.available = false;
+			this.btnRope.available = true;
+			this.btnRope.selected = true;
 			this.btnRope.loadTexture('btn-rope');
 		}else if(res == 'stick'){
-			this.btnStick.available = false;
+			this.btnStick.available = true;
+			this.btnStick.selected = true;
 			this.btnStick.loadTexture('btn-stick');
 		}
 	},
@@ -201,7 +210,7 @@ Presenter.Game.prototype = {
 		this.loadButtons();	
 		this.showText();
 		this.initHeroes();
-		this.initEnemies();
+		//this.initEnemies();
 		// Activar entrada del teclado
 		this.keys = this.game.input.keyboard.createCursorKeys();
 		//Activar event listener window.addEventListener("deviceorientation", this.handleOrientation, true);
@@ -214,20 +223,29 @@ Presenter.Game.prototype = {
 	},
 	
 	selectRes: function(e){
-		if(e == this.btnIron){
+		if(e == this.btnIron && this.btnIron.available){
 			this.selectedResource = this.resources['iron'];
 			//this.btnIron.loadTexture('btn-stick-locked');
 			//this.selectedRes = 'iron';
-		}else if(e == this.btnRope){
+		}else if(e == this.btnRope && this.btnRope.available){
 			this.selectedResource = this.resources['rope'];
 			//this.selectedRes = 'rope';
-		}else if(e == this.btnStick){
+		}else if(e == this.btnStick && this.btnStick.available){
 			this.selectedResource = this.resources['stick'];
 			//this.selectedRes = 'stick';
 		}
 		this.updateResPanel();
 	},
 	updateResPanel: function(){
+		if(this.selectedResource == null){
+			this.btnStick.tint = 0xFFFFFF;
+			this.btnRope.tint = 0xFFFFFF;
+			this.btnIron.tint = 0xFFFFFF;
+			for(var i = this.heroes.length - 1; i >= 0; i--){
+				this.heroes[i].input.useHandCursor = false;
+			}
+			return;
+		}
 		for (var i = this.heroes.length - 1; i >= 0; i--) {
 			this.heroes[i].input.useHandCursor = true;
 		}
@@ -243,13 +261,6 @@ Presenter.Game.prototype = {
 			this.btnStick.tint = 0x53E129;
 			this.btnRope.tint = 0xFFFFFF;
 			this.btnIron.tint = 0xFFFFFF;
-		}else{
-			this.btnStick.tint = 0xFFFFFF;
-			this.btnRope.tint = 0xFFFFFF;
-			this.btnIron.tint = 0xFFFFFF;
-			for(var i = this.heroes.length - 1; i >= 0; i--){
-				this.heroes[i].input.useHandCursor = false;
-			}
 		}
 	},
 	updateCounter: function(){
@@ -292,7 +303,7 @@ Presenter.Game.prototype = {
 	},
 	update: function(){
 		//this.updateHeroes();
-		this.updateEnemies();
+		//this.updateEnemies();
 		//this.enemy.x--;
 	},
 	render: function(){
