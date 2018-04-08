@@ -6,6 +6,7 @@ Presenter.Game.prototype = {
 
 		// Configurar fuente
 		this.fontSmall = { font: "11px Arial", fill: "#ffffff" };
+		this.fontMini = {font: '8px Arial', fill: '#ffffff'};
 		this.fontBig = { font: "24px Arial", fill: "#ffffff" };
 		this.fontMessage = { font: "24px Arial", fill: "#e4beef",  align: "center", stroke: "#320C3E", strokeThickness: 4 };
 		this.fontScore = { font: "15px Arial", fill: "#ffffff" };
@@ -24,69 +25,64 @@ Presenter.Game.prototype = {
 			'iron': {
 				'time': 0,
 				'name': 'iron',
-				'button': this.btnIron
+				'button': this.btnIron,
+				'given_to': null
 			},
 			'stick': {
 				'time': 0,
 				'name': 'stick',
-				'button': this.btnStick
+				'button': this.btnStick,
+				'given_to': null
 			},
 			'rope': {
 				'time': 0,
 				'name': 'rope',
-				'button': this.btnRope
+				'button': this.btnRope,
+				'given_to': null
 			}
 		};
 		this.availableRes = ['iron', 'stick', 'rope'];
+
+	},
+	loadResButtons: function(){
+		
+		var x = 100, y = 10;
+		this.btnStick = this.add.button(x,y, 'btn-stick', this.selectRes, this);
+		this.btnStick.input.useHandCursor = true;
+		this.btnStick.scale.setTo(1, 0.5);
+		this.btnStick.available = true;
+		this.btnStick.resource = this.resources['stick'];
+		//this.btnStick.textCounter = this.game.add.text(x, y, this.btnStick.resource['time'], this.fontMini);
+		
+		x = 200;
+		this.btnIron = this.add.button(x,y, 'btn-iron', this.selectRes, this);
+		this.btnIron.input.useHandCursor = true;
+		this.btnIron.scale.setTo(1, 0.5);
+		this.btnIron.selected = false;
+		this.btnIron.resource = this.resources['iron'];
+		//this.btnIron.textCounter = this.game.add.text(x, y, this.btnIron.resource['time'], this.fontMini);
+		
+		
+		x = 300;
+		this.btnRope = this.add.button(x,y, 'btn-rope', this.selectRes, this);
+		this.btnRope.available = true;
+		this.btnRope.input.useHandCursor = true;
+		this.btnRope.scale.setTo(1, 0.5);
+		this.btnRope.resource = this.resources['rope'];
+		//this.btnRope.textCounter = this.game.add.text(x, y, this.btnRope.resource['time'], this.fontMini)
+
 	},
 	loadButtons: function(){
-				// Controladores de botones
+		// Controladores de botones
 		this.pauseButton = this.add.button(Presenter._WIDTH-20, 12, 'button-pause', this.managePause, this);
 		this.pauseButton.anchor.set(1,0);
 		this.pauseButton.scale.setTo(0.4, 0.4);
 		this.pauseButton.input.useHandCursor = true;
-
-/*
-		this.audioButton = this.add.button(Presenter._WIDTH-this.pauseButton.width-8*2, 8, 'button-audio', this.manageAudio, this);
-		this.audioButton.anchor.set(1,0);
-		this.audioButton.input.useHandCursor = true;
-		this.audioButton.animations.add('true', [0], 10, true);
-		this.audioButton.animations.add('false', [1], 10, true);
-		this.audioButton.animations.play(this.audioStatus);
-*/	
-		this.btnStick = this.add.sprite(200,100, 'btn-stick');
-		this.btnStick.inputEnabled = true;
-		this.btnStick.available = true;
-		//this.btnStick = this.add.button(100,10, 'btn-stick', this.selectRes, this);
-		//this.btnStick.time = 0;
-		//this.btnStick.frame = 2;
-		//this.btnStick.animations.add('available', [0, 1], 1, false);
-		//this.btnStick.animations.add('locked', [1], 1, false);
-		//this.btnStick.animations.play('available');
-		this.btnStick.scale.setTo(1, 0.5);
-		//this.btnStick.anch
-		this.btnStick.input.useHandCursor = true;
-		this.btnStick.events.onInputDown.add((btn) => {
-			console.log(btn.animations);
-			if(btn.available){
-				btn.available = false;
-				btn.loadTexture('btn-stick-locked');
-			}else{
-				btn.loadTexture('btn-stick');
-				btn.available = true;
-			}
-		});
-		
-		this.btnIron = this.add.button(200,10, 'btn-iron', this.selectRes, this);
-		this.btnIron.scale.setTo(1, 0.5);
-		this.btnIron.time = 0;
-		this.btnIron.input.useHandCursor = true;
-		this.btnIron.selected = false;
 		/*
-		this.btnRope = this.add.button(300,10, 'btn-rope', this.selectRes, this);
-		this.btnRope.time = 0;
-		this.btnRope.scale.setTo(1, 0.5);
-		this.btnRope.input.useHandCursor = true;*/
+		this.audioButton = this.add.button(Presenter._WIDTH-this.pauseButton.width-8*2, 8, 'button-audio', this.manageAudio, this);this.audioButton.anchor.set(1,0);this.audioButton.input.useHandCursor = true;this.audioButton.animations.add('true', [0], 10, true);this.audioButton.animations.add('false', [1], 10, true);this.audioButton.animations.play(this.audioStatus);
+		*/
+	
+		this.loadResButtons();
 	},
 	//  game.add.image(0, 0, 'undersea'); para los iconos 
 	showText: function(){
@@ -155,8 +151,10 @@ Presenter.Game.prototype = {
 	},
 	takeRes: function(hero, res){
 		res = this.selectedResource;
-		if(res != null){
+		if(res != null && !hero.res[res['name']] ){
 			hero.res[res['name']] = true;
+			res['given_to'] = hero;
+			console.log(this.resources);
 			this.lockRes(res);
 			this.updateHeroes();
 		}
@@ -164,29 +162,33 @@ Presenter.Game.prototype = {
 	},
 	lockRes: function(res){
 		if(res['name'] == 'iron'){
-			this.btnIron.visible = false;
-			//this.btnIron.tint = 0xFF2200;
+			this.btnIron.available = false;
+			this.btnIron.loadTexture('btn-iron-locked');
 		}else if(res['name'] == 'rope'){
-			this.btnRope.visible = false;
-			//this.btnRope.tint = 0xFF2200;
+			this.btnRope.available = false;
+			this.btnRope.loadTexture('btn-rope-locked');
 		}else if(res['name'] == 'stick'){
-			this.btnStick.visible = false;
-			//this.btnStick.tint = 0xFF2200;
+			this.btnStick.available = false;
+			this.btnStick.loadTexture('btn-stick-locked');
 		}
-		res['time'] =  30;
+		res['time'] =  5;
 	},
 	unlockRes: function(res){
 		this.resources[res]['time'] = 0;
+		var hero = this.resources[res]['given_to'];
+		console.log(hero);
+		hero.res[res] = false;
+		this.updateHero(hero);
 		//this.selectedRes = null;
 		if(res == 'iron'){
-			//this.btnStick.visible = true;
-			//this.btnIron.tint = 0xFFFFFF;
+			this.btnIron.available = false;
+			this.btnIron.loadTexture('btn-iron');
 		}else if(res == 'rope'){
-			//this.btnRope.visible = true;
-			//this.btnRope.tint = 0xFFFFFF;
+			this.btnRope.available = false;
+			this.btnRope.loadTexture('btn-rope');
 		}else if(res == 'stick'){
-			this.btnStick.visible = true;
-			//this.btnStick.tint = 0xFFFFFF;
+			this.btnStick.available = false;
+			this.btnStick.loadTexture('btn-stick');
 		}
 	},
 	
@@ -210,20 +212,11 @@ Presenter.Game.prototype = {
 		this.bounceSound = this.game.add.audio('audio-bounce');
 		//this.updateHeroes();
 	},
-	addBorders: function(){
-		this.borderGroup = this.add.group();
-		this.borderGroup.enableBody = true;
-		this.borderGroup.physicsBodyType = Phaser.Physics.ARCADE;
-		this.borderGroup.create(0, 50, 'border-horizontal');
-		this.borderGroup.create(0, Presenter._HEIGHT-2, 'border-horizontal');
-		this.borderGroup.create(0, 0, 'border-vertical');
-		this.borderGroup.create(Presenter._WIDTH-2, 0, 'border-vertical');
-		this.borderGroup.setAll('body.immovable', true);
-	},
+	
 	selectRes: function(e){
 		if(e == this.btnIron){
 			this.selectedResource = this.resources['iron'];
-			this.btnIron.loadTexture('btn-stick-locked');
+			//this.btnIron.loadTexture('btn-stick-locked');
 			//this.selectedRes = 'iron';
 		}else if(e == this.btnRope){
 			this.selectedResource = this.resources['rope'];
@@ -265,8 +258,9 @@ Presenter.Game.prototype = {
 		for (key in this.resources){
 			if(this.resources[key]['time'] > 0){
 				this.resources[key]['time'] -=1;
-			}else{
-				this.unlockRes(key);
+				if(this.resources[key]['time'] == 0){
+					this.unlockRes(key);
+				}
 			}
 		}
 	},	
@@ -293,7 +287,6 @@ Presenter.Game.prototype = {
 				}else{
 					hero.indicators[key].visible = false;
 				}
-				
 			}
 		}
 	},
@@ -335,5 +328,15 @@ Presenter.Game.prototype = {
 	manageAudio: function() {
 		this.audioStatus =! this.audioStatus;
 		this.audioButton.animations.play(this.audioStatus);
-	}
+	},
+	addBorders: function(){
+		this.borderGroup = this.add.group();
+		this.borderGroup.enableBody = true;
+		this.borderGroup.physicsBodyType = Phaser.Physics.ARCADE;
+		this.borderGroup.create(0, 50, 'border-horizontal');
+		this.borderGroup.create(0, Presenter._HEIGHT-2, 'border-horizontal');
+		this.borderGroup.create(0, 0, 'border-vertical');
+		this.borderGroup.create(Presenter._WIDTH-2, 0, 'border-vertical');
+		this.borderGroup.setAll('body.immovable', true);
+	},
 };
