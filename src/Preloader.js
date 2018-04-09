@@ -1,7 +1,7 @@
 Presenter.Preloader = function(game) {};
 Presenter.Preloader.prototype = {
 	preload: function() {
-		this.preloadBg = this.add.sprite((Presenter._WIDTH-297)*0.5, (Presenter._HEIGHT-145)*0.5, 'preloaderBg');
+		this.preloadBg = this.add.sprite((Presenter._WIDTH-158)*0.5, (Presenter._HEIGHT-50)*0.5, 'preloaderBg');
 		this.preloadBar = this.add.sprite((Presenter._WIDTH-158)*0.5, (Presenter._HEIGHT-50)*0.5, 'preloaderBar');
 		this.load.setPreloadSprite(this.preloadBar);
 
@@ -19,9 +19,9 @@ Presenter.Preloader.prototype = {
 		this.load.audio('audio-bounce', ['audio/bounce.ogg', 'audio/bounce.mp3', 'audio/bounce.m4a']);
 
 
-		this.load.spritesheet("h1","img/h1.png",36,64,10,0,0);
-		this.load.spritesheet("h2","img/h2.png",36,64,10,0,0);
-		this.load.spritesheet("h3","img/h3.png",36,64,10,0,0);
+		this.load.spritesheet("h1","img/h1.png",36,64,10,0,5);
+		this.load.spritesheet("h2","img/h2.png",36,64,10,0,5);
+		this.load.spritesheet("h3","img/h3.png",36,64,10,0,5);
 
 		this.load.image('axe', 'img/axe.png');
 

@@ -421,6 +421,7 @@ Presenter.Game.prototype = {
 		this.updateEnemies();
 		if(this.score >= this.level*100){
 			this.level+=1;
+			this.levelText.setText("Level: "+this.level);
 		}
 		for (var i = this.heroes.length - 1; i >= 0; i--){
 			var hero = this.heroes[i];

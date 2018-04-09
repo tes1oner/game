@@ -9,7 +9,7 @@ Presenter.MainMenu.prototype = {
 		this.startButton.input.useHandCursor = true;
 
 		// button to "read the article"
-		this.game.state.start('Game');
+		//this.game.state.start('Game');
 	},
 	startGame: function(){
 		this.game.state.start('Game');
