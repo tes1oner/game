@@ -8,7 +8,7 @@ Presenter.Preloader.prototype = {
 		this.load.image('panel', 'img/panel-2.png');
 		this.load.image('title', 'img/logo.png');
 		this.load.image('button-pause', 'img/btn-pause.png');
-		this.load.image('screen-mainmenu', 'img/bg-menu.png');
+		this.load.image('screen-mainmenu', 'img/background.png');
 		this.load.image('screen-howtoplay', 'img/screen-howtoplay.png');
 		this.load.image('border-horizontal', 'img/border-horizontal.png');
 		this.load.image('border-vertical', 'img/border-vertical.png');

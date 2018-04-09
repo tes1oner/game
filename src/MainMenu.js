@@ -7,6 +7,7 @@ Presenter.MainMenu.prototype = {
 		this.startButton = this.add.button(Presenter._WIDTH*0.5, 200, 'button-start', this.startGame, this, 2, 0, 1);
 		this.startButton.anchor.set(0.5,0);
 		this.startButton.input.useHandCursor = true;
+		this.gameTitle.scale.setTo(0.3, 0.3);
 
 		// button to "read the article"
 		//this.game.state.start('Game');
