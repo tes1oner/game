@@ -416,6 +416,16 @@ Presenter.Game.prototype = {
 	update: function(){
 		this.updateAxes();
 		this.updateEnemies();
+		for (var i = this.heroes.length - 1; i >= 0; i--){
+			var hero = this.heroes[i];
+			var enemy = this.enemies[hero.index];
+			//this.physics.arcade.collide(hero, , this.die, null, this);
+			if(enemy.x <= (hero.x+hero.width)){
+				hero.tint = 0xE31010;
+				this.endGame();
+			}
+		}
+		
 	},
 	render: function(){
 		// this.game.debug.body(this.arher);
@@ -437,6 +447,7 @@ Presenter.Game.prototype = {
 			if("vibrate" in window.navigator) {
 				window.navigator.vibrate(100);
 			}
+			this.score+=10;
 			//this.reinitEnemy(enemy);
 		}
 		
@@ -454,9 +465,19 @@ Presenter.Game.prototype = {
 		axe.fly = false;
 		axe.visible = false;
 	},
+	endGame: function(){
+		this.game.paused = true;
+		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Juego Terminado,\nAlcanzaste "+this.score+" puntos", this.fontMessage);
+		pausedText.anchor.set(0.5);
+		this.input.onDown.add(function(){
+			pausedText.destroy();
+			this.game.paused = false;
+			this.game.state.start('MainMenu');
+		}, this);
+	},
 	managePause: function() {
 		this.game.paused = true;
-		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Game paused,\ntap anywhere to continue.", this.fontMessage);
+		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Juego Pausado,\nPulsa la pantalla para continuar", this.fontMessage);
 		pausedText.anchor.set(0.5);
 		this.input.onDown.add(function(){
 			pausedText.destroy();
