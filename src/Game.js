@@ -137,7 +137,8 @@ Presenter.Game.prototype = {
 	initHeroes: function(){
 		this.heroes = [];
 		for(var i = 0; i < 3; i++){
-			var y = this.linePositions.y+(70*i);
+			var y = this.startPositions['heroes'][i]['y'];
+			var x = this.startPositions['heroes'][i]['x'];
 			var animationSpeed = Math.floor(Math.random() * 10) + 3;
 			var hero = this.add.sprite(this.linePositions.hx, y, "h"+(i+1));
 			hero.index = i;
@@ -181,6 +182,8 @@ Presenter.Game.prototype = {
 		var hx = hero.x+hero.width / 1.5;
 		var hy = hero.y+(hero.height/4);
 		axe =  this.add.sprite(hx,hy,'axe');
+		axe.originalX = hx;
+		axe.originalY = hy;
 		axe.index = index;
 		axe.inputEnabled = true;
 		axe.events.onInputDown.add((axe) => {
@@ -201,10 +204,8 @@ Presenter.Game.prototype = {
 		if(axe.fly){
 			return;
 		}
-		var hx = hero.x+hero.width / 1.5;
-		var hy = hero.y+(hero.height/4);
-		axe.x = hx;
-		axe.y = hy;
+		axe.x = axe.originalX;
+		axe.y = axe.originalY;
 		var force = 140;
 		var angle = 0;
 
