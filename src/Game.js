@@ -57,6 +57,18 @@ Presenter.Game.prototype = {
 					y: 269
 				}
 			],
+			'heroes': [
+				{
+					x: 64,
+					y: 64
+				},{
+					x: 64,
+					y: 134
+				},{
+					x: 64,
+					y: 204
+				}
+			]
 		};
 
 
@@ -230,10 +242,8 @@ Presenter.Game.prototype = {
 			enemy.speed = speed;
 			this.enemies[i] = enemy;
 			this.enemies[i].events.onInputDown.add((enemy) => {
-				console.log('enemy: '+enemy.index);
 			});
 		}
-		//this.enemies.append()
 	},
 	takeRes: function(hero, res){
 		res = this.selectedResource;
@@ -404,9 +414,7 @@ Presenter.Game.prototype = {
 	},
 	update: function(){
 		this.updateAxes();
-		//this.updateHeroes();
 		this.updateEnemies();
-		//this.enemy.x--;
 	},
 	render: function(){
 		// this.game.debug.body(this.arher);
@@ -439,9 +447,9 @@ Presenter.Game.prototype = {
 		enemy.dying = 0;
 		enemy.live = true;
 		enemy.animations.play('walking');
+		enemy.speed = this.rnd.realInRange(0.1, .6) * this.level;
 	},
 	axeOut: function(axe){
-		console.log('axe '+axe.index+' out');
 		axe.fly = false;
 		axe.visible = false;
 	},
