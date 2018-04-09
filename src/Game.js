@@ -416,6 +416,9 @@ Presenter.Game.prototype = {
 	update: function(){
 		this.updateAxes();
 		this.updateEnemies();
+		if(this.score >= this.level*100){
+			this.level+=1;
+		}
 		for (var i = this.heroes.length - 1; i >= 0; i--){
 			var hero = this.heroes[i];
 			var enemy = this.enemies[hero.index];
@@ -459,7 +462,7 @@ Presenter.Game.prototype = {
 		enemy.dying = 0;
 		enemy.live = true;
 		enemy.animations.play('walking');
-		enemy.speed = this.rnd.realInRange(0.1, .6) * this.level;
+		enemy.speed = this.rnd.realInRange(0.1, .6) * (this.level);
 	},
 	axeOut: function(axe){
 		axe.fly = false;
@@ -467,7 +470,7 @@ Presenter.Game.prototype = {
 	},
 	endGame: function(){
 		this.game.paused = true;
-		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Juego Terminado,\nAlcanzaste "+this.score+" puntos", this.fontMessage);
+		var pausedText = this.add.text(Presenter._WIDTH*0.5,150, "Juego Terminado,\nAlcanzaste "+this.score+" puntos", this.fontMessage);
 		pausedText.anchor.set(0.5);
 		this.input.onDown.add(function(){
 			pausedText.destroy();
@@ -477,7 +480,7 @@ Presenter.Game.prototype = {
 	},
 	managePause: function() {
 		this.game.paused = true;
-		var pausedText = this.add.text(Presenter._WIDTH*0.5, 250, "Juego Pausado,\nPulsa la pantalla para continuar", this.fontMessage);
+		var pausedText = this.add.text(Presenter._WIDTH*0.5, 150, "Juego Pausado,\nPulsa la pantalla para continuar", this.fontMessage);
 		pausedText.anchor.set(0.5);
 		this.input.onDown.add(function(){
 			pausedText.destroy();
