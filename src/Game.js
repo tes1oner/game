@@ -44,11 +44,11 @@ Presenter.Game.prototype = {
 		this.availableRes = ['iron', 'stick', 'rope'];
 		this.resTime = 8;
 		this.chargeTime = 8;
-		this.initPositions = {
-			enemies: [
+		this.startPositions = {
+			'enemies': [
 				{
 					x: Presenter._WIDTH+100,
-					y: 129+(70*i)
+					y: 129
 				},{
 					x: Presenter._WIDTH+100,
 					y: 199
@@ -209,8 +209,9 @@ Presenter.Game.prototype = {
 	initEnemies: function(){
 		this.enemies = [];
 		for(var i = 0; i < 3; i++){
-			var y = this.linePositions.y+65+(70*i);
-			var enemy = this.add.sprite(Presenter._WIDTH+100, y, 'enemy');
+			var y = this.startPositions['enemies'][i]['y'];
+			var x = this.startPositions['enemies'][i]['x'];
+			var enemy = this.add.sprite(x, y, 'enemy');
 			enemy.index = i;
 			this.physics.enable(enemy, Phaser.Physics.ARCADE);
 			enemy.body.setSize(1, 1);
@@ -219,6 +220,7 @@ Presenter.Game.prototype = {
 			enemy.data = {};
 			var speed = this.rnd.realInRange(0.1, .6) * this.level;
 			enemy.live = true;
+			enemy.dying = 0;
 			//var speed = 2;
 			enemy.scale.setTo(-1, 1);
 			enemy.frame = 1;
@@ -367,8 +369,16 @@ Presenter.Game.prototype = {
 	},	
 	updateEnemies: function(){
 		for (var i = 0; i < this.enemies.length; i++) {
-			this.enemies[i].x-=this.enemies[i].data.speed * this.level;
-
+			var enemy = this.enemies[i];
+			if(enemy.live){
+				enemy.x-=enemy.data.speed * this.level;
+			}else{
+				enemy.dying-=.10;
+				if(enemy.dying <= 0){
+					this.reinitEnemy(enemy);
+				}
+				
+			}
 		}
 	},
 	updateHero: function(hero){
@@ -407,19 +417,29 @@ Presenter.Game.prototype = {
 		}
 	},
 	killEnemy: function(axe, enemy){
-		if(enemy.live){
+		if(enemy.dying <= 0){
+			enemy.dying = 10;
 			enemy.live = false;
+			enemy.tint = 0xE31010;
+			enemy.animations.stop();
 			if(this.audioStatus) {
 				this.bounceSound.play();
 			}
 			if("vibrate" in window.navigator) {
 				window.navigator.vibrate(100);
 			}
-			this.reinitEnemy(enemy);
+			//this.reinitEnemy(enemy);
 		}
 		
 	},
-	reinitEnemy: function(){},
+	reinitEnemy: function(enemy){
+		enemy.tint = 0xFFFFFF;
+		enemy.x = this.startPositions['enemies'][enemy.index]['x'];
+		enemy.y = this.startPositions['enemies'][enemy.index]['y'];
+		enemy.dying = 0;
+		enemy.live = true;
+		enemy.animations.play('walking');
+	},
 	axeOut: function(axe){
 		console.log('axe '+axe.index+' out');
 		axe.fly = false;
