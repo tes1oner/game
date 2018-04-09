@@ -104,10 +104,13 @@ Presenter.Game.prototype = {
 	},
 	loadButtons: function(){
 		// Controladores de botones
+		/*
 		this.pauseButton = this.add.button(Presenter._WIDTH-20, 12, 'button-pause', this.managePause, this);
 		this.pauseButton.anchor.set(1,0);
 		this.pauseButton.scale.setTo(0.4, 0.4);
 		this.pauseButton.input.useHandCursor = true;
+		*/
+
 		/*
 		this.audioButton = this.add.button(Presenter._WIDTH-this.pauseButton.width-8*2, 8, 'button-audio', this.manageAudio, this);this.audioButton.anchor.set(1,0);this.audioButton.input.useHandCursor = true;this.audioButton.animations.add('true', [0], 10, true);this.audioButton.animations.add('false', [1], 10, true);this.audioButton.animations.play(this.audioStatus);
 		*/
