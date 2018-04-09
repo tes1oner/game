@@ -44,6 +44,21 @@ Presenter.Game.prototype = {
 		this.availableRes = ['iron', 'stick', 'rope'];
 		this.resTime = 8;
 		this.chargeTime = 8;
+		this.initPositions = {
+			enemies: [
+				{
+					x: Presenter._WIDTH+100,
+					y: 129+(70*i)
+				},{
+					x: Presenter._WIDTH+100,
+					y: 199
+				},{
+					x: Presenter._WIDTH+100,
+					y: 269
+				}
+			],
+		};
+
 
 	},
 	loadResButtons: function(){
@@ -65,8 +80,6 @@ Presenter.Game.prototype = {
 		this.btnIron.selected = false;
 		this.btnIron.resource = this.resources['iron'];
 		//this.btnIron.textCounter = this.game.add.text(x, y, this.btnIron.resource['time'], this.fontMini);
-		
-		
 		x = 300;
 		this.btnRope = this.add.button(x,y, 'btn-rope', this.selectRes, this);
 		this.btnRope.available = true;
@@ -108,15 +121,14 @@ Presenter.Game.prototype = {
 			resIndicators[this.availableRes[i]] = indicator;
 		}
 		return resIndicators;
-
 	},
-
 	initHeroes: function(){
 		this.heroes = [];
 		for(var i = 0; i < 3; i++){
 			var y = this.linePositions.y+(70*i);
 			var animationSpeed = Math.floor(Math.random() * 10) + 3;
 			var hero = this.add.sprite(this.linePositions.hx, y, "h"+(i+1));
+			hero.index = i;
 			hero.frame = 1;
 			hero.animations.add('state', [0,1,2,3,4], animationSpeed, true);
 			hero.animations.add('shot', [5,6,7,8,9], 8, false).onComplete.add((hero) => {
@@ -133,48 +145,63 @@ Presenter.Game.prototype = {
 
 			hero.chargeTime = parseInt(this.rnd.realInRange(0.5, 1) * 10);
 			//this.updateHero(hero);
-			var hx = hero.x+hero.width / 1.5;
-			var hy = hero.y+(hero.height/4);
+			
 
-			hero.hacha = this.add.sprite(hx,hy,'hacha');
-			this.physics.enable(hero.hacha, Phaser.Physics.ARCADE);
-			hero.hacha.body.setSize(0.5, 0.5);
-			hero.hacha.anchor.set(0.5);
-			hero.hacha.fly = false;
-			//hero.hacha.scale.setTo(0.5,0.5);
-			hero.hacha.visible = false;
+			hero.axe = this.getHeroAxe(hero, i);
 			this.heroes[i] = hero;
 			this.heroes[i].events.onInputDown.add((hero) => {
 				if(this.selectedResource != null){
 					this.takeRes(hero, this.selectedResource);
 				}else if(hero.res['iron'] && hero.res['rope'] && hero.res['stick']){
-					//this.shot(hero);
-					hero.animations.play('shot', 'state');
+					console.log('hero: '+hero.index);
+					if(!hero.axe.fly){
+						hero.animations.play('shot');
+					}
+					
+
 				}
 			});
 			this.updateHeroes();
 		}
 	},
-	
-
+	getHeroAxe: function(hero, index){
+		var axe;
+		var hx = hero.x+hero.width / 1.5;
+		var hy = hero.y+(hero.height/4);
+		axe =  this.add.sprite(hx,hy,'axe');
+		axe.index = index;
+		axe.inputEnabled = true;
+		axe.events.onInputDown.add((axe) => {
+				console.log('axe: '+axe.index)
+			});
+		
+		this.physics.enable(axe, Phaser.Physics.ARCADE);
+		axe.body.setSize(0.5, 0.5);
+		axe.anchor.set(0.5);
+		axe.fly = false;
+		//hero.axe.scale.setTo(0.5,0.5);
+		axe.visible = false;
+		
+		return axe;
+	},
 	shot: function(hero){
-		var hacha = hero.hacha;
-		if(hacha.fly){
+		var axe = hero.axe;
+		if(axe.fly){
 			return;
 		}
 		var hx = hero.x+hero.width / 1.5;
 		var hy = hero.y+(hero.height/4);
-		hacha.x = hx;
-		hacha.y = hy;
+		axe.x = hx;
+		axe.y = hy;
 		var force = 140;
 		var angle = 0;
 
-		hacha.visible = true;
+		axe.visible = true;
 		hero.animations.play('state');
-		hacha.fly = true;
-		hacha.body.velocity.x = Math.cos(angle)*force;
-		//hacha.body.velocity.y += Math.sin(angle)*force;
-		//console.log(hero.hacha);
+		axe.fly = true;
+		axe.body.velocity.x = Math.cos(angle)*force;
+		//axe.body.velocity.y += Math.sin(angle)*force;
+		//console.log(hero.axe);
 		
 		//sleep(8/1000);
 		//hero.animations.play('state');
@@ -182,10 +209,17 @@ Presenter.Game.prototype = {
 	initEnemies: function(){
 		this.enemies = [];
 		for(var i = 0; i < 3; i++){
-			var y = this.linePositions.y+(70*i);
+			var y = this.linePositions.y+65+(70*i);
 			var enemy = this.add.sprite(Presenter._WIDTH+100, y, 'enemy');
+			enemy.index = i;
+			this.physics.enable(enemy, Phaser.Physics.ARCADE);
+			enemy.body.setSize(1, 1);
+			enemy.anchor.set(1);
+			enemy.inputEnabled = true;
 			enemy.data = {};
 			var speed = this.rnd.realInRange(0.1, .6) * this.level;
+			enemy.live = true;
+			//var speed = 2;
 			enemy.scale.setTo(-1, 1);
 			enemy.frame = 1;
 			enemy.animations.add('walking', [0,1,2,3,4,5], 8, true);
@@ -193,6 +227,9 @@ Presenter.Game.prototype = {
 			enemy.data.speed = speed;
 			enemy.speed = speed;
 			this.enemies[i] = enemy;
+			this.enemies[i].events.onInputDown.add((enemy) => {
+				console.log('enemy: '+enemy.index);
+			});
 		}
 		//this.enemies.append()
 	},
@@ -219,9 +256,6 @@ Presenter.Game.prototype = {
 			this.selectedResource = null;
 		}
 		this.updateResPanel();
-	},
-	lockRes: function(res){
-		
 	},
 	unlockRes: function(res){
 		this.resources[res]['time'] = 0;
@@ -252,8 +286,9 @@ Presenter.Game.prototype = {
 		// Cargar elementos
 		this.loadButtons();	
 		this.showText();
+		this.initEnemies();
 		this.initHeroes();
-		//this.initEnemies();
+		
 		// Activar entrada del teclado
 		this.keys = this.game.input.keyboard.createCursorKeys();
 		//Activar event listener window.addEventListener("deviceorientation", this.handleOrientation, true);
@@ -279,17 +314,16 @@ Presenter.Game.prototype = {
 		}
 		this.updateResPanel();
 	},
-	updateHachas: function(){
-		for (var i = this.heroes.length - 1; i >= 0; i--) {
-			var hacha = this.heroes[i].hacha;
-			if(hacha.fly){
-				hacha.body.rotation += 2;
-				if(hacha.x > Presenter._WIDTH){
-					console.log('el hacha salio del rango');
-					hacha.fly = false;
-					hacha.visible = false;
+	updateAxes: function(){
+		for(var i = 0; i < this.heroes.length; i++){
+			var axe = this.heroes[i].axe;
+			if(axe.fly){
+				axe.body.rotation += 10;
+				if(axe.x >= this.enemies[axe.index].x){
+					this.killEnemy(axe, this.enemies[axe.index]);
 				}
-			}
+			}			
+			this.physics.arcade.collide(axe, this.borderGroup, this.axeOut, null, this);
 		}
 	},
 	updateResPanel: function(){
@@ -334,6 +368,7 @@ Presenter.Game.prototype = {
 	updateEnemies: function(){
 		for (var i = 0; i < this.enemies.length; i++) {
 			this.enemies[i].x-=this.enemies[i].data.speed * this.level;
+
 		}
 	},
 	updateHero: function(hero){
@@ -358,24 +393,37 @@ Presenter.Game.prototype = {
 		}
 	},
 	update: function(){
-		this.updateHachas();
+		this.updateAxes();
 		//this.updateHeroes();
-		//this.updateEnemies();
+		this.updateEnemies();
 		//this.enemy.x--;
 	},
 	render: function(){
 		// this.game.debug.body(this.arher);
 		// this.game.debug.body(this.hole);
 		//this.game.debug.body();
+		for (var i = this.enemies.length - 1; i >= 0; i--) {
+			this.game.debug.body(this.enemies[i]);
+		}
 	},
-	wallCollision: function() {
-		if(this.audioStatus) {
-			this.bounceSound.play();
+	killEnemy: function(axe, enemy){
+		if(enemy.live){
+			enemy.live = false;
+			if(this.audioStatus) {
+				this.bounceSound.play();
+			}
+			if("vibrate" in window.navigator) {
+				window.navigator.vibrate(100);
+			}
+			this.reinitEnemy(enemy);
 		}
-		// Vibration API
-		if("vibrate" in window.navigator) {
-			window.navigator.vibrate(100);
-		}
+		
+	},
+	reinitEnemy: function(){},
+	axeOut: function(axe){
+		console.log('axe '+axe.index+' out');
+		axe.fly = false;
+		axe.visible = false;
 	},
 	managePause: function() {
 		this.game.paused = true;

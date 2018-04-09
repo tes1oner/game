@@ -23,7 +23,7 @@ Presenter.Preloader.prototype = {
 		this.load.spritesheet("h2","img/h2.png",36,64,10,0,0);
 		this.load.spritesheet("h3","img/h3.png",36,64,10,0,0);
 
-		this.load.image('hacha', 'img/hacha.png');
+		this.load.image('axe', 'img/axe.png');
 
 		this.load.spritesheet('enemy', 'img/enemy.png',36,64,6,0,0);
 
