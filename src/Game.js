@@ -466,6 +466,7 @@ Presenter.Game.prototype = {
 		enemy.dying = 0;
 		enemy.live = true;
 		enemy.animations.play('walking');
+		//enemy.speed = this.rnd.realInRange(0.1, .6) * (this.level);
 		enemy.speed = this.rnd.realInRange(0.1, .6) * (this.level);
 	},
 	axeOut: function(axe){
